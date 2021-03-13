@@ -1,0 +1,61 @@
+// Code your testbench here
+// or browse Examples
+package traffic_junction_defination;
+
+typedef enum {RED,YELLOW,GREEN} traffic_lights; 
+typedef struct {rand traffic_lights traffic_light1, traffic_light2, traffic_light3, traffic_light4;} traffic_junction;
+
+class traffic_signal_scenario;
+rand traffic_junction tr_jun;
+rand int scheme;
+static int change_count;  
+ 
+  constraint c_scheme_before_lights_order {solve scheme before tr_jun.traffic_light1;
+                                           solve scheme before tr_jun.traffic_light2;
+                                           solve scheme before tr_jun.traffic_light3;
+                                           solve scheme before tr_jun.traffic_light4;
+                                          }  
+  constraint c_ALL_OFF          {(scheme == 0) -> {tr_jun.traffic_light1 == RED;tr_jun.traffic_light2 == RED;tr_jun.traffic_light3 == RED;tr_jun.traffic_light4 == RED;}}
+  constraint c_tr_light1_GREEN  {(scheme == 1) -> {tr_jun.traffic_light1 == GREEN;tr_jun.traffic_light2 == RED;tr_jun.traffic_light3 == RED;tr_jun.traffic_light4 == RED;}}
+  constraint c_tr_light1_YELLOW {(scheme == 2) -> {tr_jun.traffic_light1 == YELLOW;tr_jun.traffic_light2 == RED;tr_jun.traffic_light3 == RED;tr_jun.traffic_light4 == RED;}}
+  constraint c_tr_light2_GREEN  {(scheme == 3) -> {tr_jun.traffic_light1 == RED;tr_jun.traffic_light2 == GREEN;tr_jun.traffic_light3 == RED;tr_jun.traffic_light4 == RED;}}
+  constraint c_tr_light2_YELLOW {(scheme == 4) -> {tr_jun.traffic_light1 == RED;tr_jun.traffic_light2 == YELLOW;tr_jun.traffic_light3 == RED;tr_jun.traffic_light4 == RED;}}
+  constraint c_tr_light3_GREEN  {(scheme == 5) -> {tr_jun.traffic_light1 == RED;tr_jun.traffic_light2 == RED;tr_jun.traffic_light3 == GREEN;tr_jun.traffic_light4 == RED;}}
+  constraint c_tr_light3_YELLOW {(scheme == 6) -> {tr_jun.traffic_light1 == RED;tr_jun.traffic_light2 == RED;tr_jun.traffic_light3 == YELLOW;tr_jun.traffic_light4 == RED;}}
+  constraint c_tr_light4_GREEN  {(scheme == 7) -> {tr_jun.traffic_light1 == RED;tr_jun.traffic_light2 == RED;tr_jun.traffic_light3 == RED;tr_jun.traffic_light4 == GREEN;}}
+  constraint c_tr_light4_YELLOW {(scheme == 8) -> {tr_jun.traffic_light1 == RED;tr_jun.traffic_light2 == RED;tr_jun.traffic_light3 == RED;tr_jun.traffic_light4 == YELLOW;}}
+ 
+  function new();
+    traffic_junction tr_jun = '{RED,RED,RED,RED};
+  endfunction : new
+
+  task display();
+    $display("%tps Traffic_juntion scheme : %d : tr_light1 %s , tr_light2 %s , tr_light3 %s , tr_light4 %s",$time,change_count,tr_jun.traffic_light1.name(), tr_jun.traffic_light2.name(), tr_jun.traffic_light3.name(), tr_jun.traffic_light4.name());
+    change_count++;
+  endtask : display
+  
+endclass : traffic_signal_scenario
+endpackage
+
+program traffic_signal;
+  `timescale 1ps/1ps;
+  import traffic_junction_defination::*;
+  traffic_junction_defination::traffic_signal_scenario tr_sc;
+
+ initial begin
+   tr_sc = new();
+   
+   if(!tr_sc.randomize() with {scheme == 0;}) $error("Randomization failed"); #10; tr_sc.display();
+   if(!tr_sc.randomize() with {scheme == 1;}) $error("Randomization failed"); #10; tr_sc.display();   
+   if(!tr_sc.randomize() with {scheme == 2;}) $error("Randomization failed"); #10; tr_sc.display();
+   if(!tr_sc.randomize() with {scheme == 3;}) $error("Randomization failed"); #10; tr_sc.display();   
+   if(!tr_sc.randomize() with {scheme == 4;}) $error("Randomization failed"); #10; tr_sc.display();
+   if(!tr_sc.randomize() with {scheme == 5;}) $error("Randomization failed"); #10; tr_sc.display();
+   if(!tr_sc.randomize() with {scheme == 6;}) $error("Randomization failed"); #10; tr_sc.display();
+   if(!tr_sc.randomize() with {scheme == 7;}) $error("Randomization failed"); #10; tr_sc.display(); 
+   if(!tr_sc.randomize() with {scheme == 8;}) $error("Randomization failed"); #10; tr_sc.display();   
+  $finish; 
+ end  
+  
+  
+endprogram  : traffic_signal
